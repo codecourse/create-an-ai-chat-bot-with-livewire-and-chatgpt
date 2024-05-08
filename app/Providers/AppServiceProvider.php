@@ -11,7 +11,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton('openai', function () {
+            return \OpenAI::client(config('openai.secret'));
+        });
     }
 
     /**
