@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use Illuminate\Support\Arr;
 use Livewire\Component;
 
 class ChatResponse extends Component
@@ -10,21 +11,31 @@ class ChatResponse extends Component
 
     public array $messages;
 
-    public string $response;
+    public ?string $response = null;
 
     public function mount()
     {
-        $this->getResponse();
+        $this->js('$wire.getResponse()');
     }
 
     public function getResponse()
     {
-        $response = app('openai')->chat()->create([
+        $stream = app('openai')->chat()->createStreamed([
             'model' => 'gpt-4',
             'messages' => $this->messages
         ]);
 
-        $this->response = $response->choices[0]->toArray()['message']['content'];
+        foreach ($stream as $response) {
+            $content = Arr::get($response->choices[0]->toArray(), 'delta.content');
+
+            $this->response .= $content;
+
+            $this->stream(
+                to: 'stream-' . $this->getId(),
+                content: $content,
+                replace: false
+            );
+        }
     }
 
     public function render()
