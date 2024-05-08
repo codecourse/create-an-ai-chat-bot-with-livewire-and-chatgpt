@@ -1,7 +1,7 @@
 <div class="max-w-lg mx-auto my-16 border border-slate-200 rounded-xl overflow-hidden">
     <div class="h-[400px] bg-gradient-to-t from-slate-100 p-6 flex space-y-1.5 overflow-scroll flex-col-reverse">
         <div class="flex flex-col">
-            @foreach($messages as $message)
+            @foreach($messages as $key => $message)
                 @if ($message['role'] === 'user')
                     <div class="w-3/4 space-y-0.5 self-end">
                         <div class="text-xs text-right">You</div>
@@ -10,15 +10,11 @@
                         </div>
                     </div>
                 @endif
-            @endforeach
 
-            <!-- Bot message -->
-{{--            <div class="w-3/4 space-y-0.5 has-[.stream:empty]:hidden">--}}
-{{--                <div class="text-xs">Bot</div>--}}
-{{--                <div class="bg-slate-200 rounded-xl rounded-tl-none px-3 py-1.5 text-sm">--}}
-{{--                    Hello, how can I help?--}}
-{{--                </div>--}}
-{{--            </div>--}}
+                @if ($message['role'] === 'assistant')
+                    <livewire:chat-response :key="$key" :messages="$messages" :prompt="$messages[$key - 1]" />
+                @endif
+            @endforeach
         </div>
     </div>
     <form wire:submit="send" class="bg-slate-100 p-3 border-t border-slate-200 flex space-x-2">
